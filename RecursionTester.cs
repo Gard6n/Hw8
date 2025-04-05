@@ -137,43 +137,36 @@ public static class RecursionTester {
         // (17, 15), (18, 15), (18, 16), (18, 17), (18, 18), (18, 19), (19, 19)}
     }
 
-    /// <summary>
-    /// #############
-    /// # Problem 1 #
-    /// #############
-    /// Using recursion, find the sum of 1^2 + 2^2 + 3^2 + ... + n^2
-    /// and return it.  Remember to both express the solution 
-    /// in terms of recursive call on a smaller problem and 
-    /// to identify a base case (terminating case).  If the value of
-    /// n &lt;= 0, just return 0.   A loop should not be used.
-    /// </summary>
-    public static int SumSquaresRecursive(int n) {
-        // TODO Start Problem 1
+ 
+ public static int SumSquaresRecursive(int n) {
+    // Base case: if n is less than or equal to 0, return 0
+    if (n <= 0) {
         return 0;
     }
+    
+    // Recursive case: sum of squares from 1 to n is
+    // n² + sum of squares from 1 to (n-1)
+    return (n * n) + SumSquaresRecursive(n - 1);
+}
 
-    /// <summary>
-    /// #############
-    /// # Problem 2 #
-    /// #############
-    /// Using recursion Print permutations of length
-    /// 'size' from a list of 'letters'.  This function
-    /// should assume that each letter is unique (i.e. the 
-    /// function does not need to find unique permutations).
-    ///
-    /// In mathematics, we can calculate the number of permutations
-    /// using the formula: len(letters)! / (len(letters) - size)!
-    ///
-    /// For example, if letters was [A,B,C] and size was 2 then
-    /// the following would display: AB, AC, BA, BC, CA, CB (might be in 
-    /// a different order).
-    ///
-    /// You can assume that the size specified is always valid (between 1 
-    /// and the length of the letters list).
-    /// </summary>
     public static void PermutationsChoose(string letters, int size, string word = "") {
-        // TODO Start Problem 2
+    // Base case: if we've built a word of the desired size, print it
+    if (word.Length == size) {
+        Console.WriteLine(word);
+        return;
     }
+    
+    // Try adding each available letter to our current word
+    for (int i = 0; i < letters.Length; i++) {
+        char current = letters[i];
+        
+        // Remove the current letter from available letters
+        string remaining = letters.Remove(i, 1);
+        
+        // Recursively build permutations with the current letter added
+        PermutationsChoose(remaining, size, word + current);
+    }
+}
 
     /// <summary>
     /// #############
@@ -221,53 +214,89 @@ public static class RecursionTester {
     /// until the memoization is implemented.
     /// </summary>
     public static decimal CountWaysToClimb(int s, Dictionary<int, decimal>? remember = null) {
-        // Base Cases
-        if (s == 0)
-            return 0;
-        if (s == 1)
-            return 1;
-        if (s == 2)
-            return 2;
-        if (s == 3)
-            return 4;
+    // Initialize the memoization dictionary if it's null
+    if (remember == null)
+        remember = new Dictionary<int, decimal>();
+    
+    // Check if we've already calculated this value
+    if (remember.ContainsKey(s))
+        return remember[s];
+    
+    // Base Cases
+    if (s == 0)
+        return 0;
+    if (s == 1)
+        return 1;
+    if (s == 2)
+        return 2;
+    if (s == 3)
+        return 4;
 
-        // Solve using recursion
-        decimal ways = CountWaysToClimb(s - 1) + CountWaysToClimb(s - 2) + CountWaysToClimb(s - 3);
-        return ways;
-    }
+    // Solve using recursion with memoization
+    decimal ways = CountWaysToClimb(s - 1, remember) + 
+                   CountWaysToClimb(s - 2, remember) + 
+                   CountWaysToClimb(s - 3, remember);
+    
+    // Store the result in our memoization dictionary
+    remember[s] = ways;
+    
+    return ways;
+}
 
-    /// <summary>
-    /// #############
-    /// # Problem 4 #
-    /// #############
-    /// A binary string is a string consisting of just 1's and 0's.  For example, 1010111 is 
-    /// a binary string.  If we introduce a wildcard symbol * into the string, we can say that 
-    /// this is now a pattern for multiple binary strings.  For example, 101*1 could be used 
-    /// to represent 10101 and 10111.  A pattern can have more than one * wildcard.  For example, 
-    /// 1**1 would result in 4 different binary strings: 1001, 1011, 1101, and 1111.
-    ///	
-    /// Using recursion, display all possible binary strings for a given pattern.  You might find 
-    /// some of the string functions like IndexOf and [..X] / [X..] to be useful in solving this problem.
-    /// </summary>
     public static void WildcardBinary(string pattern) {
-        // TODO Start Problem 4
+    // Find the first wildcard in the pattern
+    int wildcardIndex = pattern.IndexOf('*');
+    
+    // Base case: No wildcards found, this is a complete binary string
+    if (wildcardIndex == -1) {
+        Console.WriteLine(pattern);
+        return;
     }
-
-    /// <summary>
-    /// Use recursion to Print all paths that start at (0,0) and end at the
-    /// 'end' square.
-    /// </summary>
+    
+    // Create two new patterns by replacing the first wildcard with 0 and 1
+    string pattern0 = pattern.Substring(0, wildcardIndex) + "0" + pattern.Substring(wildcardIndex + 1);
+    string pattern1 = pattern.Substring(0, wildcardIndex) + "1" + pattern.Substring(wildcardIndex + 1);
+    
+    // Recursively process both new patterns
+    WildcardBinary(pattern0);
+    WildcardBinary(pattern1);
+}
+ 
     public static void SolveMaze(Maze maze, int x = 0, int y = 0, List<ValueTuple<int, int>>? currPath = null) {
-        // If this is the first time running the function, then we need
-        // to initialize the currPath list.
-        if (currPath == null)
-            currPath = new List<ValueTuple<int, int>>();
-
-        // currPath.Add((1,2)); // Use this syntax to add to the current path
-
-        // TODO Start Problem 5
-        // ADD CODE HERE
-
-        // Console.WriteLine(currPath.AsString()); // Use this to print out your path when you find the solution
+    // If this is the first time running the function, then we need
+    // to initialize the currPath list.
+    if (currPath == null)
+        currPath = new List<ValueTuple<int, int>>();
+    
+    // Add the current position to the path
+    currPath.Add((x, y));
+    
+    // Check if we've reached the end of the maze
+    if (maze.IsEnd(x, y)) {
+        Console.WriteLine(currPath.AsString());
+        
+        // Remove the current position from the path before returning
+        // so it doesn't affect other recursive calls
+        currPath.RemoveAt(currPath.Count - 1);
+        return;
     }
+    
+    // Try moving in all four directions: right, down, left, up
+    int[] dx = { 1, 0, -1, 0 };
+    int[] dy = { 0, 1, 0, -1 };
+    
+    for (int i = 0; i < 4; i++) {
+        int newX = x + dx[i];
+        int newY = y + dy[i];
+        
+        // Check if the move is valid
+        if (maze.IsValidMove(currPath, newX, newY)) {
+            // Recursively explore this path
+            SolveMaze(maze, newX, newY, currPath);
+        }
+    }
+    
+    // Remove the current position from the path before backtracking
+    currPath.RemoveAt(currPath.Count - 1);
+}
 }
